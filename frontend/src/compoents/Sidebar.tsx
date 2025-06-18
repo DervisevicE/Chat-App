@@ -18,9 +18,9 @@ const Sidebar = () => {
                 maxWidth: 360,
                 bgcolor: 'background.paper',
                 borderRadius: '20px',
-                margin: '10px',
                 overflowY: 'auto',
-                height: '100vh'
+                height: '100vh',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
             }}
             subheader={<ListSubheader>Users</ListSubheader>}
 
