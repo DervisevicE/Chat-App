@@ -1,7 +1,7 @@
 import {Avatar, Box, Typography} from "@mui/material";
 
 
-const MessageBubble = ({isOwner}: { isOwner: boolean }) => {
+const MessageBubble = ({isOwner, value}: { isOwner: boolean, value: string }) => {
     return (
         <Box sx={{
             display: 'flex',
@@ -26,9 +26,7 @@ const MessageBubble = ({isOwner}: { isOwner: boolean }) => {
                 <Typography variant='body2' sx={{
                     color: isOwner ? 'white' : '#000'
                 }}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur dolor eum suscipit temporibus.
-                    Architecto at aut consequatur enim excepturi labore minus molestiae numquam pariatur quas quis,
-                    repellat. Aperiam, dolorum sunt?
+                    {value}
                 </Typography>
                 <Typography
                     variant="caption"
