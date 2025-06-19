@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Message {
-    private String text;
-    private String senderUsername;
-    private String conversationId;
+public class User {
+
+    private String username;
+
 }
