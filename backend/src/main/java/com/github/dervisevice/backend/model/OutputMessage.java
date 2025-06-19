@@ -12,8 +12,9 @@ import java.util.Date;
 public class OutputMessage extends Message {
     private String timestamp;
 
-    public OutputMessage(String text, String time) {
+    public OutputMessage(String text, String senderUsername, String time) {
         this.setText(text);
+        this.setSenderUsername(senderUsername);
         this.setTimestamp(time);
     }
 }

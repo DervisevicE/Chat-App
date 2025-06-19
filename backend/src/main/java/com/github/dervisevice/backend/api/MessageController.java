@@ -16,7 +16,7 @@ public class MessageController {
     @SendTo("/topic/messages")
     public OutputMessage send(Message message) throws Exception {
         String time = new SimpleDateFormat("HH:mm").format(new Date());
-        return new OutputMessage(message.getText(), time);
+        return new OutputMessage(message.getText(), message.getSenderUsername(), time);
     }
 
 }

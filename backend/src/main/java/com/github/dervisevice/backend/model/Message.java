@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Message {
     private String text;
-//    private String senderUsername;
+    private String senderUsername;
 }

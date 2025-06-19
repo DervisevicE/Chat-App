@@ -1,7 +1,23 @@
 import {Avatar, Box, Typography} from "@mui/material";
 
 
-const MessageBubble = ({isOwner, value}: { isOwner: boolean, value: string }) => {
+const MessageBubble = ({isOwner, value, senderUsername}: {
+    isOwner: boolean,
+    value: string,
+    senderUsername: string
+}) => {
+
+    const getInitialsFromUsername = (username: string) => {
+        const matches = username.match(/[A-Z]/g);
+
+        if (matches && matches.length >= 2) {
+            return matches.slice(0, 2).join('');
+        }
+
+        return username.slice(0, 2).toUpperCase();
+    };
+
+
     return (
         <Box sx={{
             display: 'flex',
@@ -12,8 +28,9 @@ const MessageBubble = ({isOwner, value}: { isOwner: boolean, value: string }) =>
 
             {!isOwner && (
                 <Avatar>
-                    E
+                    {getInitialsFromUsername(senderUsername)}
                 </Avatar>
+
             )}
 
             <Box sx={{
@@ -44,7 +61,7 @@ const MessageBubble = ({isOwner, value}: { isOwner: boolean, value: string }) =>
 
             {isOwner && (
                 <Avatar>
-                    E
+                    {getInitialsFromUsername(senderUsername)}
                 </Avatar>
             )}
         </Box>
