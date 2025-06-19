@@ -1,56 +1,95 @@
 import {
-    Box,
     List,
-    ListItemText,
-    ListItemAvatar,
-    ListItemButton,
     ListSubheader,
-    Avatar,
+    Drawer,
+    useTheme,
+    useMediaQuery, IconButton
 } from '@mui/material'
+import SidebarContent from "./SidebarContent.tsx";
+import MenuIcon from '@mui/icons-material/Menu';
+import {useState} from "react";
 
 
 const Sidebar = () => {
 
+    const [open, setOpen] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     return (
-        <List
-            sx={{
-                width: '100%',
-                maxWidth: 360,
-                bgcolor: 'background.paper',
-                borderRadius: '20px',
-                overflowY: 'auto',
-                height: '100vh',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                overflowX: 'hidden'
-            }}
-            subheader={<ListSubheader>Users</ListSubheader>}
+        <>
+            {
+                isMobile ? (
+                        <>
+                            {!open && (
+                                <IconButton
+                                    onClick={() => setOpen(true)}
+                                    sx={{
+                                        position: 'fixed',
+                                        top: 16,
+                                        left: 16,
+                                        zIndex: 1300,
+                                        bgcolor: '#fff',
+                                        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                                    }}
+                                >
+                                    <MenuIcon/>
+                                </IconButton>
+                            )}
+                            <Drawer
+                                anchor="left"
+                                open={open}
+                                onClose={() => setOpen(false)}>
+                                <List
+                                    sx={{
+                                        width: isMobile ? 250 : 360,
+                                        maxWidth: 360,
+                                        bgcolor: 'background.paper',
+                                        borderRadius: isMobile ? 0 : '20px',
+                                        overflowY: 'auto',
+                                        height: '100vh',
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                        overflowX: 'hidden',
+                                    }}
+                                    subheader={<ListSubheader>Users</ListSubheader>}
 
-        >
-            <ListItemButton>
-                <ListItemAvatar>
-                    <Box sx={{position: 'relative', display: 'inline-block'}}>
-                        <Avatar>
-                            E
-                        </Avatar>
-                        <Box
+                                >
+                                    <SidebarContent/>
+                                    <SidebarContent/>
+                                    <SidebarContent/>
+                                    <SidebarContent/>
+
+                                </List>
+                            </Drawer>
+                        </>
+                    )
+                    :
+                    (
+                        <List
                             sx={{
-                                position: 'absolute',
-                                bottom: 0,
-                                right: 0,
-                                width: 12,
-                                height: 12,
-                                bgcolor: '#44b700',
-                                border: '2px solid white',
-                                borderRadius: '50%',
+                                width: '100%',
+                                maxWidth: 360,
+                                bgcolor: 'background.paper',
+                                borderRadius: '20px',
+                                overflowY: 'auto',
+                                height: '100vh',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                overflowX: 'hidden'
                             }}
-                        />
-                    </Box>
-                </ListItemAvatar>
-                <ListItemText primary="username1234"/>
-            </ListItemButton>
+                            subheader={<ListSubheader>Users</ListSubheader>}
 
-        </List>
-    );
+                        >
+                            <SidebarContent/>
+                            <SidebarContent/>
+                            <SidebarContent/>
+                            <SidebarContent/>
+
+                        </List>
+                    )
+            }
+        </>
+    )
+        ;
 }
 
 export default Sidebar;
