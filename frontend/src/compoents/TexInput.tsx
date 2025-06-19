@@ -1,9 +1,11 @@
 import {Box, TextField, IconButton} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 
-
-const TextInput = ({onSend}: { onSend: Function }) => {
-
+const TextInput = ({onSend, text, setText}: {
+    onSend: (text: string) => void,
+    text: string,
+    setText: (value: string) => void
+}) => {
 
     return (
         <Box sx={{
@@ -36,11 +38,18 @@ const TextInput = ({onSend}: { onSend: Function }) => {
                             },
                         },
                     }}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
                     multiline
                     maxRows={3}
                     placeholder='Type a message here...'
                 />
-                <IconButton onClick={onSend}>
+                <IconButton onClick={() => {
+                    if (text.trim() !== '') {
+                        onSend(text);
+                        setText('');
+                    }
+                }}>
                     <SendIcon sx={{fill: '#6B1CB0'}}/>
                 </IconButton>
             </Box>

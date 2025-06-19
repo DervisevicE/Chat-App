@@ -23,7 +23,7 @@ const MessageBubble = ({isOwner, value, senderUsername}: {
             display: 'flex',
             justifyContent: isOwner ? 'flex-end' : 'flex-start',
             alignItems: 'flex-end',
-            gap: '12px'
+            gap: '12px',
         }}>
 
             {!isOwner && (
@@ -34,14 +34,24 @@ const MessageBubble = ({isOwner, value, senderUsername}: {
             )}
 
             <Box sx={{
-                width: '60%',
+                width: '50%',
                 background: isOwner ? 'linear-gradient(90deg,rgba(107, 28, 176, 1) 1%, rgba(175, 101, 224, 1) 33%, rgba(174, 136, 235, 1) 100%)' : '#fff',
                 borderRadius: '20px',
                 padding: '30px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
             }}>
                 <Typography variant='body2' sx={{
-                    color: isOwner ? 'white' : '#000'
+                    color: isOwner ? 'white' : '#6B1CB0',
+                    fontWeight: '600',
+                    fontSize: '12px'
+                }}>
+                    {senderUsername}
+                </Typography>
+                <Typography variant='body2' sx={{
+                    color: isOwner ? 'white' : '#000',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'anywhere',
+                    whiteSpace: 'normal',
                 }}>
                     {value}
                 </Typography>

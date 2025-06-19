@@ -25,6 +25,7 @@ function App() {
     const [messages, setMessages] = useState<Message[]>([])
     const [username, setUsername] = useState<string>("")
     const [openDialog, setOpenDialog] = useState<boolean>(true);
+    const [text, setText] = useState('');
 
 
     const adjectives = ['Quick', 'Brave', 'Silly', 'Witty', 'Pretty', 'Cute'];
@@ -51,9 +52,9 @@ function App() {
     });
 
 
-    function onSend() {
+    function onSend(text: string) {
         const message = {
-            text: "text",
+            text: text,
             senderUsername: username
         }
 
@@ -104,7 +105,7 @@ function App() {
 
                 </div>
 
-                <TextInput onSend={onSend}/>
+                <TextInput onSend={onSend} text={text} setText={setText}/>
             </div>
 
 
