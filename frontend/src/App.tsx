@@ -12,7 +12,7 @@ import {
     Button,
     Typography
 } from '@mui/material';
-import {getGeneratedUsername} from "./api/services/userService.ts";
+import {getActiveUsers, getGeneratedUsername} from "./api/services/userService.ts";
 
 
 interface Message {
@@ -25,23 +25,37 @@ interface User {
     username: string
 }
 
-function App() {
+function App({ username }: { username: string }) {
 
     const [messages, setMessages] = useState<Message[]>([])
-    const [username, setUsername] = useState<string | undefined>(undefined)
+    // const [username, setUsername] = useState<string | undefined>(undefined)
     const [openDialog, setOpenDialog] = useState<boolean>(true);
     const [text, setText] = useState('');
     const [activeUsers, setActiveUsers] = useState<User[]>([])
 
 
-    useEffect(() => {
-        getGeneratedUsername().then(
-            (response) => {
+    // useEffect(() => {
+    //     getGeneratedUsername().then(
+    //         (response) => {
+    //
+    //             setUsername(response.data)
+    //         }
+    //     )
+    // }, []);
 
-                setUsername(response.data)
-            }
-        )
-    }, []);
+
+
+    useEffect(() => {
+        if (!username) return;
+
+        const interval = setInterval(() => {
+            getActiveUsers().then((res) => {
+                setActiveUsers(res.data);
+            });
+        }, 3000); // refresh every 3s
+
+        return () => clearInterval(interval);
+    }, [username]);
 
 
     const stompClient = useStompClient();
@@ -99,7 +113,7 @@ function App() {
                     </Dialog>
 
 
-                    <Sidebar/>
+                    <Sidebar  activeUsers={activeUsers}/>
 
                     <div className="app-content">
                         <div className="message-list">

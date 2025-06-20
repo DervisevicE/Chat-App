@@ -1,6 +1,8 @@
 package com.github.dervisevice.backend.api;
 
 import com.github.dervisevice.backend.model.User;
+import com.github.dervisevice.backend.repository.UserEntityRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,11 +12,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
+@RequiredArgsConstructor
 public class UserController {
+
+    private final UserEntityRepository userEntityRepository;
 
     @GetMapping
     public ResponseEntity<?> getActiveUsers() {
-        return ResponseEntity.ok(List.of(new User("JamesBond007")));
+        var users = userEntityRepository.findAll()
+                .stream()
+                .map(userEntity -> new User(userEntity.getUsername()))
+                .toList();
+
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/username")

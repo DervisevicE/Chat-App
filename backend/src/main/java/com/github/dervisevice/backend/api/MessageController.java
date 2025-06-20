@@ -31,7 +31,7 @@ public class MessageController {
         messageEntity.setText(message.getText());
         messageEntity.setSenderUsername(message.getSenderUsername());
         messageEntity.setConversationId(message.getConversationId());
-        messageEntity.setTimestamp((java.sql.Date) timestamp);
+        messageEntity.setTimestamp(new java.sql.Date(timestamp.getTime()));
         messageEntityRepository.save(messageEntity);
         return new OutputMessage(message.getText(), message.getSenderUsername(), time, message.getConversationId());
     }

@@ -7,14 +7,26 @@ import {
 } from '@mui/material'
 
 
-const SidebarContent = () => {
+const SidebarContent = ({username}: { username: string }) => {
+
+    const getInitials = (username: string | undefined) => {
+        if (!username) return '?';
+
+        const matches = username.match(/[A-Z]/g);
+
+        if (matches && matches.length >= 2) {
+            return matches.slice(0, 2).join('');
+        }
+
+        return username.slice(0, 2).toUpperCase();
+    };
 
     return (
         <ListItemButton>
             <ListItemAvatar>
                 <Box sx={{position: 'relative', display: 'inline-block'}}>
                     <Avatar>
-                        E
+                        {getInitials(username)}
                     </Avatar>
                     <Box
                         sx={{
@@ -30,7 +42,7 @@ const SidebarContent = () => {
                     />
                 </Box>
             </ListItemAvatar>
-            <ListItemText primary="username1234"/>
+            <ListItemText primary={username}/>
         </ListItemButton>
     );
 }

@@ -10,11 +10,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import {useState} from "react";
 
 
-const Sidebar = () => {
+const Sidebar = ({activeUsers}: { activeUsers: { username: string }[] }) => {
 
     const [open, setOpen] = useState(false);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    console.log(activeUsers)
 
     return (
         <>
@@ -54,10 +56,9 @@ const Sidebar = () => {
                                     subheader={<ListSubheader>Users</ListSubheader>}
 
                                 >
-                                    <SidebarContent/>
-                                    <SidebarContent/>
-                                    <SidebarContent/>
-                                    <SidebarContent/>
+                                    {activeUsers.map((user, index) => (
+                                        <SidebarContent key={index} username={user.username}/>
+                                    ))}
 
                                 </List>
                             </Drawer>
@@ -79,10 +80,9 @@ const Sidebar = () => {
                             subheader={<ListSubheader>Users</ListSubheader>}
 
                         >
-                            <SidebarContent/>
-                            <SidebarContent/>
-                            <SidebarContent/>
-                            <SidebarContent/>
+                            {activeUsers.map((user, index) => (
+                                <SidebarContent key={index} username={user.username}/>
+                            ))}
 
                         </List>
                     )
