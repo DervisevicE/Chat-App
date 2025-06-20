@@ -13,6 +13,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    gap: 12px;
     margin: 10px;
 }
 

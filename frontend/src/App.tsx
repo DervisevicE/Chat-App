@@ -35,7 +35,7 @@ function App({username}: { username: string }) {
     const [activeUsers, setActiveUsers] = useState<User[]>([])
 
     const setFilteredActiveUsers = (users: User[]) => {
-        setActiveUsers([{username: "Global"},...users.filter(u => u.username !== username)]);
+        setActiveUsers([{username: "Global"}, ...users.filter(u => u.username !== username)]);
     }
 
     const handleClose = (
@@ -68,6 +68,10 @@ function App({username}: { username: string }) {
         const body = JSON.parse(message.body);
         if (body["type"] === "USER_CONNECTED") {
             setNotification(`New user joined the app: ${body["data"]["username"]}`)
+            setOpen(true);
+        }
+        if (body["type"] === "USER_DISCONNECTED") {
+            setNotification(`${body["data"]["username"]} disconnected from the app`)
             setOpen(true);
         }
     })
