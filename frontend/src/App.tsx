@@ -2,7 +2,7 @@ import './App.css'
 import Sidebar from './compoents/Sidebar.tsx'
 import MessageBubble from './compoents/MessageBubble.tsx'
 import TextInput from './compoents/TexInput.tsx'
-import {StompSessionProvider, useStompClient, useSubscription} from "react-stomp-hooks";
+import {useStompClient, useSubscription} from "react-stomp-hooks";
 import {useEffect, useState} from 'react';
 import {
     Dialog,
@@ -10,9 +10,9 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    Typography
+    Typography, Snackbar, type SnackbarCloseReason
 } from '@mui/material';
-import {getActiveUsers, getGeneratedUsername} from "./api/services/userService.ts";
+import {getActiveUsers} from "./api/services/userService.ts";
 
 
 interface Message {
@@ -25,43 +25,57 @@ interface User {
     username: string
 }
 
-function App({ username }: { username: string }) {
+function App({username}: { username: string }) {
 
+    const [open, setOpen] = useState<boolean>(false);
+    const [notification, setNotification] = useState<string | undefined>(undefined)
     const [messages, setMessages] = useState<Message[]>([])
-    // const [username, setUsername] = useState<string | undefined>(undefined)
     const [openDialog, setOpenDialog] = useState<boolean>(true);
     const [text, setText] = useState('');
     const [activeUsers, setActiveUsers] = useState<User[]>([])
 
+    const setFilteredActiveUsers = (users: User[]) => {
+        setActiveUsers([{username: "Global"},...users.filter(u => u.username !== username)]);
+    }
 
-    // useEffect(() => {
-    //     getGeneratedUsername().then(
-    //         (response) => {
-    //
-    //             setUsername(response.data)
-    //         }
-    //     )
-    // }, []);
+    const handleClose = (
+        _: React.SyntheticEvent | Event,
+        reason?: SnackbarCloseReason,
+    ) => {
+        if (reason === 'clickaway') {
+            return;
+        }
 
-
+        setOpen(false);
+    };
 
     useEffect(() => {
         if (!username) return;
 
-        const interval = setInterval(() => {
-            getActiveUsers().then((res) => {
-                setActiveUsers(res.data);
-            });
-        }, 3000); // refresh every 3s
+        getActiveUsers().then((res) => {
+            setFilteredActiveUsers(res.data);
+        });
 
-        return () => clearInterval(interval);
     }, [username]);
-
 
     const stompClient = useStompClient();
     useSubscription("/topic/messages", (message) => {
         const msgObj: Message = JSON.parse(message.body);
         setMessages((prevMessages) => [...prevMessages, msgObj]);
+    });
+
+    useSubscription("/topic/notifications", (message) => {
+        const body = JSON.parse(message.body);
+        if (body["type"] === "USER_CONNECTED") {
+            setNotification(`New user joined the app: ${body["data"]["username"]}`)
+            setOpen(true);
+        }
+    })
+
+    useSubscription("/topic/active-users", (message) => {
+        const users: User[] = JSON.parse(message.body);
+
+        setFilteredActiveUsers(users);
     });
 
 
@@ -84,9 +98,15 @@ function App({ username }: { username: string }) {
     }
 
     return (
-
-
         <div className="app">
+            <Snackbar
+                open={open}
+                onClose={handleClose}
+                autoHideDuration={6000}
+                message={notification}
+                sx={{color: 'white'}}
+                anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+            />
 
             {username === undefined
 
@@ -113,7 +133,7 @@ function App({ username }: { username: string }) {
                     </Dialog>
 
 
-                    <Sidebar  activeUsers={activeUsers}/>
+                    <Sidebar activeUsers={activeUsers}/>
 
                     <div className="app-content">
                         <div className="message-list">

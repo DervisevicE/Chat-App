@@ -1,11 +1,16 @@
 package com.github.dervisevice.backend.configuration;
 
+import com.github.dervisevice.backend.model.Notification;
 import com.github.dervisevice.backend.model.db.UserEntity;
 import com.github.dervisevice.backend.repository.UserEntityRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.core.AbstractMessageSendingTemplate;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -16,6 +21,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -26,6 +32,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final Map<String, String> sessionUsernameMap = new HashMap<>();
 
+    @Lazy
+    @Autowired
+    private AbstractMessageSendingTemplate messageSendingTemplate;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -52,6 +61,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             var userEntity = new UserEntity();
             userEntity.setUsername(username);
             userEntityRepository.save(userEntity);
+            sendNotification(username);
+            getActiveUsers();
         }
     }
 
@@ -65,8 +76,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         if (username != null) {
             userEntityRepository.deleteByUsername(username);
             sessionUsernameMap.remove(sessionId);
+            getActiveUsers();
             System.out.println("Disconnected via event: " + username);
         }
+    }
+
+    public void sendNotification(String username) {
+        messageSendingTemplate.convertAndSend("/topic/notifications", Notification.userConnected(username));
+    }
+
+    private void getActiveUsers() {
+        var users = userEntityRepository.findAll().stream()
+                .map(user -> Map.of("username", user.getUsername()))
+                .collect(Collectors.toList());
+
+        messageSendingTemplate.convertAndSend("/topic/active-users", users);
     }
 
 }
