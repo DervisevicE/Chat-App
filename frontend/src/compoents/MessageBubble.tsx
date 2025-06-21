@@ -1,10 +1,12 @@
 import {Avatar, Box, Typography} from "@mui/material";
+import type {Ref} from "react";
 
 
-const MessageBubble = ({isOwner, value, senderUsername}: {
+const MessageBubble = ({isOwner, value, senderUsername, ref}: {
     isOwner: boolean,
     value: string,
-    senderUsername: string
+    senderUsername: string,
+    ref?: Ref<never>,
 }) => {
 
     const getInitialsFromUsername = (username: string) => {
@@ -24,7 +26,7 @@ const MessageBubble = ({isOwner, value, senderUsername}: {
             justifyContent: isOwner ? 'flex-end' : 'flex-start',
             alignItems: 'flex-end',
             gap: '12px',
-        }}>
+        }} ref={ref}>
 
             {!isOwner && (
                 <Avatar>

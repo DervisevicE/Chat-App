@@ -3,7 +3,7 @@ import Sidebar from './compoents/Sidebar.tsx'
 import MessageBubble from './compoents/MessageBubble.tsx'
 import TextInput from './compoents/TexInput.tsx'
 import {useStompClient, useSubscription} from "react-stomp-hooks";
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -13,13 +13,9 @@ import {
     Typography, Snackbar, type SnackbarCloseReason
 } from '@mui/material';
 import {getActiveUsers} from "./api/services/userService.ts";
-
-
-interface Message {
-    text: string;
-    senderUsername: string;
-    timestamp?: string;
-}
+import {openConversation} from "./api/services/conversationService.ts";
+import type {ConversationResponse, MessageResponse} from "./api/types.ts";
+import {getMessages} from "./api/services/messageService.ts";
 
 interface User {
     username: string
@@ -29,10 +25,35 @@ function App({username}: { username: string }) {
 
     const [open, setOpen] = useState<boolean>(false);
     const [notification, setNotification] = useState<string | undefined>(undefined)
-    const [messages, setMessages] = useState<Message[]>([])
+    const [messages, setMessages] = useState<MessageResponse[]>([])
     const [openDialog, setOpenDialog] = useState<boolean>(true);
     const [text, setText] = useState('');
     const [activeUsers, setActiveUsers] = useState<User[]>([])
+    const [conversation, setConversation] = useState<ConversationResponse | undefined>(undefined)
+    const lastMessageRef = useRef(null);
+
+    const handlers: Record<string, (notification: Record<string, never>) => void> = {
+        "NEW_MESSAGE": (notification: Record<string, never>) => {
+            const message = notification["data"]["message"];
+            if (message["conversationId"] === conversation?.conversationId) {
+                setMessages((m) => [...m, message])
+                if (lastMessageRef.current) {
+                    (lastMessageRef.current as Element).scrollIntoView({ behavior: "smooth" });
+                }
+            } else {
+                setNotification(`${message["senderUsername"]}: ${message["text"]}`)
+                setOpen(true);
+            }
+        },
+        "USER_CONNECTED": (notification: Record<string, never>) => {
+            setNotification(`New user joined the app: ${notification["data"]["username"]}`)
+            setOpen(true);
+        },
+        "USER_DISCONNECTED": (notification: Record<string, never>) => {
+            setNotification(`${notification["data"]["username"]} disconnected from the app`)
+            setOpen(true);
+        }
+    }
 
     const setFilteredActiveUsers = (users: User[]) => {
         setActiveUsers([{username: "Global"}, ...users.filter(u => u.username !== username)]);
@@ -49,30 +70,78 @@ function App({username}: { username: string }) {
         setOpen(false);
     };
 
+    const activeUserClickedHandler = (event: CustomEvent) => {
+        event.preventDefault();
+        console.log(event);
+        if (event.detail == "Global") {
+            setConversation({
+                conversationId: 'global',
+                usernameA: "",
+                usernameB: "",
+            });
+            return;
+        }
+
+        openConversation({
+            usernamesA: username,
+            usernamesB: (event as CustomEvent).detail
+        }).then(response => {
+            const conversation = response.data;
+            console.log('Conversation', conversation)
+            setConversation(conversation)
+        })
+    }
+
     useEffect(() => {
         if (!username) return;
+
+        console.log("heeerer")
 
         getActiveUsers().then((res) => {
             setFilteredActiveUsers(res.data);
         });
 
+        // @ts-expect-error just to not be red
+        window.removeEventListener("active-user-clicked", activeUserClickedHandler);
+        // @ts-expect-error just to not be red
+        window.addEventListener("active-user-clicked", activeUserClickedHandler);
     }, [username]);
 
+    useEffect(() => {
+        if (conversation === undefined) {
+            return
+        }
+        getMessages(conversation.conversationId).then(
+            (response) => {
+                setMessages(response.data)
+            }
+        )
+
+    }, [conversation]);
+
     const stompClient = useStompClient();
+
     useSubscription("/topic/messages", (message) => {
-        const msgObj: Message = JSON.parse(message.body);
+        const msgObj: MessageResponse = JSON.parse(message.body);
         setMessages((prevMessages) => [...prevMessages, msgObj]);
     });
 
-    useSubscription("/topic/notifications", (message) => {
-        const body = JSON.parse(message.body);
-        if (body["type"] === "USER_CONNECTED") {
-            setNotification(`New user joined the app: ${body["data"]["username"]}`)
-            setOpen(true);
+    useSubscription(`/topic/notifications/${username}`, (notification) => {
+        const body = JSON.parse(notification.body) as Record<string, never>;
+        console.log(`User ${username} got notification ${notification.body}`)
+        if (handlers[body["type"]]) {
+            handlers[body["type"]](body);
+        } else {
+            console.log("No handler for notification", notification);
         }
-        if (body["type"] === "USER_DISCONNECTED") {
-            setNotification(`${body["data"]["username"]} disconnected from the app`)
-            setOpen(true);
+    })
+
+    useSubscription("/topic/notifications", (notification) => {
+        const body = JSON.parse(notification.body) as Record<string, never>;
+        if (handlers[body["type"]]) {
+            handlers[body["type"]](body);
+        } else {
+            console.log("No handler for notification", notification);
         }
     })
 
@@ -87,7 +156,7 @@ function App({username}: { username: string }) {
         const message = {
             text: text,
             senderUsername: username,
-            conversationId: "global"
+            conversationId: conversation?.conversationId
         }
 
         if (stompClient) {
@@ -141,7 +210,15 @@ function App({username}: { username: string }) {
 
                     <div className="app-content">
                         <div className="message-list">
-                            {messages.map(({text, senderUsername}, index) => (
+                            {messages.map(({text, senderUsername}, index) => index === messages.length - 1 ? (
+                                <MessageBubble
+                                    ref={lastMessageRef}
+                                    key={index}
+                                    isOwner={senderUsername === username}
+                                    value={text}
+                                    senderUsername={senderUsername}
+                                />
+                            ) : (
                                 <MessageBubble
                                     key={index}
                                     isOwner={senderUsername === username}

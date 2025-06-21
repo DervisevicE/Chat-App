@@ -12,7 +12,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class Notification {
-    public static enum Type {
+    public enum Type {
         USER_CONNECTED,
         USER_DISCONNECTED,
         NEW_CONVERSATION,
@@ -34,7 +34,7 @@ public class Notification {
         return new Notification(Type.NEW_CONVERSATION, Map.of("conversationId", conversationId));
     }
 
-    public static Notification newMessage(String message) {
+    public static Notification newMessage(Message message) {
         return new Notification(Type.NEW_MESSAGE, Map.of("message", message));
     }
 

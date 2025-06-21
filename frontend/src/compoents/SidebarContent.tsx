@@ -21,8 +21,14 @@ const SidebarContent = ({username}: { username: string }) => {
         return username.slice(0, 2).toUpperCase();
     };
 
+    function handleActiveUserClicked() {
+        const event = new CustomEvent<string>('active-user-clicked', {detail: username});
+        window.dispatchEvent(event)
+        console.log(username)
+    }
+
     return (
-        <ListItemButton>
+        <ListItemButton onClick={handleActiveUserClicked}>
             <ListItemAvatar>
                 <Box sx={{position: 'relative', display: 'inline-block'}}>
                     <Avatar>

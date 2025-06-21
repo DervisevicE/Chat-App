@@ -61,7 +61,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             var userEntity = new UserEntity();
             userEntity.setUsername(username);
             userEntityRepository.save(userEntity);
-            sendNotification(username);
+            sendUserConnectedNotification(username);
             getActiveUsers();
         }
     }
@@ -77,12 +77,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             userEntityRepository.deleteByUsername(username);
             sessionUsernameMap.remove(sessionId);
             getActiveUsers();
+            sendUserDisconnectedNotification(username);
             System.out.println("Disconnected via event: " + username);
         }
     }
 
-    public void sendNotification(String username) {
+    public void sendUserConnectedNotification(String username) {
         messageSendingTemplate.convertAndSend("/topic/notifications", Notification.userConnected(username));
+    }
+
+    public void sendUserDisconnectedNotification(String username) {
+        messageSendingTemplate.convertAndSend("/topic/notifications", Notification.userDisconnected(username));
     }
 
     private void getActiveUsers() {

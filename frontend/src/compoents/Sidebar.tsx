@@ -16,8 +16,6 @@ const Sidebar = ({activeUsers}: { activeUsers: { username: string }[] }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    console.log(activeUsers)
-
     return (
         <>
             {
