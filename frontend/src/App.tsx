@@ -124,6 +124,12 @@ function App({username}: { username: string }) {
             }
         )
 
+        setTimeout(() => {
+            if (lastMessageRef.current) {
+                (lastMessageRef.current as Element).scrollIntoView({behavior: 'smooth'});
+            }
+        }, 100);
+
     }, [conversation]);
 
     const stompClient = useStompClient();
