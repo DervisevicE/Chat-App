@@ -6,7 +6,7 @@ const MessageBubble = ({isOwner, value, senderUsername, timestamp, ref}: {
     isOwner: boolean,
     value: string,
     senderUsername: string,
-    timestamp: string,
+    timestamp: Date,
     ref?: Ref<never>,
 }) => {
 
@@ -67,7 +67,7 @@ const MessageBubble = ({isOwner, value, senderUsername, timestamp, ref}: {
                         mt: 0.5,
                     }}
                 >
-                    {timestamp ? timestamp : ""}
+                    {timestamp ? timestamp.toString() : ""}
                 </Typography>
             </Box>
 

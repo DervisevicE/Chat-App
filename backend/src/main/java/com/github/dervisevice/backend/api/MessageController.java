@@ -104,6 +104,8 @@ public class MessageController {
                             .usernameA(conversationRequest.getUsernamesA())
                             .usernameB(conversationRequest.getUsernamesB())
                             .build());
+            messageSendingTemplate.convertAndSend("/topic/notifications/" + conversationEntity.getUsernameB(), Notification.newConversation(conversationId, conversationEntity.getUsernameA()));
+            messageSendingTemplate.convertAndSend("/topic/notifications/" + conversationEntity.getUsernameA(), Notification.newConversation(conversationId, conversationEntity.getUsernameB()));
             return ResponseEntity.ok(conversationEntity);
         }
 

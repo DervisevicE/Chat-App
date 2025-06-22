@@ -30,8 +30,8 @@ public class Notification {
         return new Notification(Type.USER_DISCONNECTED, Map.of("username", username));
     }
 
-    public static Notification newConversation(String conversationId) {
-        return new Notification(Type.NEW_CONVERSATION, Map.of("conversationId", conversationId));
+    public static Notification newConversation(String conversationId, String username) {
+        return new Notification(Type.NEW_CONVERSATION, Map.of("conversationId", conversationId,  "username", username));
     }
 
     public static Notification newMessage(Message message) {
