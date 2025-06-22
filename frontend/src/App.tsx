@@ -58,6 +58,10 @@ function App({username}: { username: string }) {
         "USER_DISCONNECTED": (notification: Record<string, never>) => {
             setNotification(`${notification["data"]["username"]} disconnected from the app`)
             setOpen(true);
+        },
+        "NEW_CONVERSATION": (notification: Record<string, never>) => {
+            setNotification(`New conversation started with ${notification["data"]["username"]}`)
+            setOpen(true);
         }
     }
 
