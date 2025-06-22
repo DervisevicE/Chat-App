@@ -32,6 +32,11 @@ function App({username}: { username: string }) {
     const [conversation, setConversation] = useState<ConversationResponse | undefined>(undefined)
     const lastMessageRef = useRef(null);
 
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const messageListRef = useRef<HTMLDivElement>(null);
+
     const handlers: Record<string, (notification: Record<string, never>) => void> = {
         "NEW_MESSAGE": (notification: Record<string, never>) => {
             const message = notification["data"]["message"];
@@ -96,8 +101,6 @@ function App({username}: { username: string }) {
     useEffect(() => {
         if (!username) return;
 
-        console.log("heeerer")
-
         getActiveUsers().then((res) => {
             setFilteredActiveUsers(res.data);
         });
@@ -118,9 +121,15 @@ function App({username}: { username: string }) {
         if (conversation === undefined) {
             return
         }
-        getMessages(conversation.conversationId).then(
+
+        setPage(0);
+        setMessages([]);
+        setHasMore(true);
+
+        getMessages(conversation.conversationId, 0).then(
             (response) => {
-                setMessages(response.data)
+                const reversed = response.data.reverse();
+                setMessages(reversed)
             }
         )
 
@@ -131,6 +140,39 @@ function App({username}: { username: string }) {
         }, 100);
 
     }, [conversation]);
+
+    useEffect(() => {
+        const container = messageListRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            if (container.scrollTop === 0 && !loadingMore && hasMore) {
+                setLoadingMore(true);
+                const nextPage = page + 1;
+                getMessages(conversation!.conversationId, nextPage).then((response) => {
+                    const newMessages = response.data.reverse();
+                    if (newMessages.length === 0) {
+                        setHasMore(false);
+                    } else {
+                        setMessages(prev => [...newMessages, ...prev]);
+                        setPage(nextPage);
+
+                        requestAnimationFrame(() => {
+                            container.scrollTop = container.children[0].scrollHeight;
+                        });
+                    }
+                    setLoadingMore(false);
+                });
+            }
+        };
+
+        container.addEventListener("scroll", handleScroll);
+        return () => container.removeEventListener("scroll", handleScroll);
+    }, [conversation, page, hasMore, loadingMore]);
+
+    console.log("PAGE IS", page)
+    console.log("MESSAGES", messages)
+
 
     const stompClient = useStompClient();
 
@@ -183,6 +225,14 @@ function App({username}: { username: string }) {
         }
     }
 
+
+    useEffect(() => {
+        console.log("Updated messages:");
+        messages.forEach((msg, index) => {
+            console.log(`${index}:`, msg);
+        });
+    }, [messages]);
+
     return (
         <div className="app">
             <Snackbar
@@ -222,14 +272,15 @@ function App({username}: { username: string }) {
                     <Sidebar activeUsers={activeUsers}/>
 
                     <div className="app-content">
-                        <div className="message-list">
-                            {messages.map(({text, senderUsername}, index) => index === messages.length - 1 ? (
+                        <div className="message-list" ref={messageListRef}>
+                            {messages.map(({text, senderUsername, timestamp}, index) => index === messages.length - 1 ? (
                                 <MessageBubble
-                                    ref={lastMessageRef}
+                                    ref={index === messages.length - 1 ? lastMessageRef : null}
                                     key={index}
                                     isOwner={senderUsername === username}
                                     value={text}
                                     senderUsername={senderUsername}
+                                    timestamp={timestamp}
                                 />
                             ) : (
                                 <MessageBubble
@@ -237,6 +288,7 @@ function App({username}: { username: string }) {
                                     isOwner={senderUsername === username}
                                     value={text}
                                     senderUsername={senderUsername}
+                                    timestamp={timestamp}
                                 />
                             ))}
 

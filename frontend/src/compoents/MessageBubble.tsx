@@ -2,10 +2,11 @@ import {Avatar, Box, Typography} from "@mui/material";
 import type {Ref} from "react";
 
 
-const MessageBubble = ({isOwner, value, senderUsername, ref}: {
+const MessageBubble = ({isOwner, value, senderUsername, timestamp, ref}: {
     isOwner: boolean,
     value: string,
     senderUsername: string,
+    timestamp: string,
     ref?: Ref<never>,
 }) => {
 
@@ -18,7 +19,6 @@ const MessageBubble = ({isOwner, value, senderUsername, ref}: {
 
         return username.slice(0, 2).toUpperCase();
     };
-
 
     return (
         <Box sx={{
@@ -67,7 +67,7 @@ const MessageBubble = ({isOwner, value, senderUsername, ref}: {
                         mt: 0.5,
                     }}
                 >
-                    12:22AM
+                    {timestamp ? timestamp : ""}
                 </Typography>
             </Box>
 

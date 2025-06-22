@@ -11,6 +11,9 @@ import com.github.dervisevice.backend.repository.MessageEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.core.AbstractMessageSendingTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -40,10 +43,18 @@ public class MessageController {
         messageEntity.setText(message.getText());
         messageEntity.setSenderUsername(message.getSenderUsername());
         messageEntity.setConversationId(conversationId);
-        messageEntity.setTimestamp(new java.sql.Date(timestamp.getTime()));
+        messageEntity.setTimestamp(new java.util.Date());
         messageEntityRepository.save(messageEntity);
 
-        var notification = Notification.newMessage(message);
+        var outputMessage = new OutputMessage(
+                message.getText(),
+                message.getSenderUsername(),
+                time,
+                conversationId
+        );
+
+
+        var notification = Notification.newMessage(outputMessage);
         if (conversationId != null && conversationId.equals("global")) {
             messageSendingTemplate.convertAndSend("/topic/notifications", notification);
         }
@@ -60,8 +71,12 @@ public class MessageController {
 
 
     @GetMapping("/api/messages/{conversationId}")
-    public ResponseEntity<?> getMessages(@PathVariable("conversationId") String conversationId) {
-        var messages = messageEntityRepository.findAllByConversationId(conversationId);
+    public ResponseEntity<?> getMessages(@PathVariable("conversationId") String conversationId,
+                                         @RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
+        var messages = messageEntityRepository.findAllByConversationId(conversationId, pageable);
         var response = messages.stream().map((m) -> {
             var output = new OutputMessage();
             output.setText(m.getText());
