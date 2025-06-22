@@ -38,10 +38,11 @@ function App({username}: { username: string }) {
             if (message["conversationId"] === conversation?.conversationId) {
                 setMessages((m) => [...m, message])
                 if (lastMessageRef.current) {
-                    (lastMessageRef.current as Element).scrollIntoView({ behavior: "smooth" });
+                    (lastMessageRef.current as Element).scrollIntoView({behavior: "smooth"});
                 }
             } else {
-                setNotification(`${message["senderUsername"]}: ${message["text"]}`)
+                const conversationType = message["conversationId"] === "global" ? "in global chat" : "in private conversation";
+                setNotification(`${message["senderUsername"]}  ${conversationType}: ${message["text"]}`)
                 setOpen(true);
             }
         },
@@ -99,6 +100,12 @@ function App({username}: { username: string }) {
 
         getActiveUsers().then((res) => {
             setFilteredActiveUsers(res.data);
+        });
+
+        setConversation({
+            conversationId: 'global',
+            usernameA: '',
+            usernameB: ''
         });
 
         // @ts-expect-error just to not be red
