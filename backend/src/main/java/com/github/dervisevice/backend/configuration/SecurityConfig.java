@@ -15,10 +15,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
-//@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -29,11 +27,8 @@ public class SecurityConfig {
                 .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(PUBLIC_ROUTES.toArray(new String[0]))
                                 .anyRequest()
                                 .permitAll()
-//                        .anyRequest()
-//                        .authenticated()
                 )
                 .cors(cors -> cors.configurationSource(corsConfiguration()))
                 .sessionManagement( sess -> sess
@@ -49,7 +44,6 @@ public class SecurityConfig {
         corsConfig.applyPermitDefaultValues();
         corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         corsConfig.setAllowCredentials(true);
-//        corsConfig.addAllowedOrigin("http://localhost:5173");
         corsConfig.addAllowedMethod(HttpMethod.PUT);
         corsConfig.addAllowedMethod(HttpMethod.POST);
         corsConfig.addAllowedMethod(HttpMethod.GET);

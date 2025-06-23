@@ -1,5 +1,5 @@
 import './App.css'
-import Sidebar from './compoents/Sidebar.tsx'
+import Sidebar from './compoents/sidebar/Sidebar.tsx'
 import MessageBubble from './compoents/MessageBubble.tsx'
 import TextInput from './compoents/TexInput.tsx'
 import {useStompClient, useSubscription} from "react-stomp-hooks";
@@ -179,10 +179,6 @@ function App({username}: { username: string }) {
         return () => container.removeEventListener("scroll", handleScroll);
     }, [conversation, page, hasMore, loadingMore]);
 
-    console.log("PAGE IS", page)
-    console.log("MESSAGES", messages)
-
-
     const stompClient = useStompClient();
 
     useSubscription("/topic/messages", (message) => {
@@ -236,7 +232,6 @@ function App({username}: { username: string }) {
 
 
     useEffect(() => {
-        console.log("Updated messages:");
         messages.forEach((msg, index) => {
             console.log(`${index}:`, msg);
         });

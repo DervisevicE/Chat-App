@@ -10,7 +10,6 @@ import com.github.dervisevice.backend.repository.ConversationEntityRepository;
 import com.github.dervisevice.backend.repository.MessageEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,10 +30,8 @@ public class MessageController {
     private final MessageEntityRepository messageEntityRepository;
     private final ConversationEntityRepository conversationEntityRepository;
     private final AbstractMessageSendingTemplate messageSendingTemplate;
-    private final ConversionService conversionService;
 
     @MessageMapping("/chat")
-//    @SendTo("/topic/messages")
     public OutputMessage send(Message message) {
         var timestamp = new Date();
         var time = new SimpleDateFormat("HH:mm").format(timestamp);
