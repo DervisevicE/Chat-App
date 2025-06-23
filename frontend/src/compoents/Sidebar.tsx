@@ -10,7 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import {useState} from "react";
 
 
-const Sidebar = ({activeUsers}: { activeUsers: { username: string }[] }) => {
+const Sidebar = ({activeUsers, selectedUser}: { activeUsers: { username: string }[], selectedUser: string }) => {
 
     const [open, setOpen] = useState(false);
     const theme = useTheme();
@@ -55,7 +55,7 @@ const Sidebar = ({activeUsers}: { activeUsers: { username: string }[] }) => {
 
                                 >
                                     {activeUsers.map((user, index) => (
-                                        <SidebarContent key={index} username={user.username}/>
+                                        <SidebarContent key={index} username={user.username} isSelected={user.username === selectedUser}/>
                                     ))}
 
                                 </List>
@@ -79,7 +79,8 @@ const Sidebar = ({activeUsers}: { activeUsers: { username: string }[] }) => {
 
                         >
                             {activeUsers.map((user, index) => (
-                                <SidebarContent key={index} username={user.username}/>
+                                <SidebarContent key={index} username={user.username}
+                                                isSelected={user.username === selectedUser}/>
                             ))}
 
                         </List>

@@ -37,6 +37,9 @@ function App({username}: { username: string }) {
     const [loadingMore, setLoadingMore] = useState(false);
     const messageListRef = useRef<HTMLDivElement>(null);
 
+    const [selectedUser, setSelectedUser] = useState<string>("Global");
+
+
     const handlers: Record<string, (notification: Record<string, never>) => void> = {
         "NEW_MESSAGE": (notification: Record<string, never>) => {
             const message = notification["data"]["message"];
@@ -83,6 +86,8 @@ function App({username}: { username: string }) {
     const activeUserClickedHandler = (event: CustomEvent) => {
         event.preventDefault();
         console.log(event);
+
+        setSelectedUser(event.detail);
         if (event.detail == "Global") {
             setConversation({
                 conversationId: 'global',
@@ -273,7 +278,7 @@ function App({username}: { username: string }) {
                     </Dialog>
 
 
-                    <Sidebar activeUsers={activeUsers}/>
+                    <Sidebar activeUsers={activeUsers} selectedUser={selectedUser}/>
 
                     <div className="app-content">
                         <div className="message-list" ref={messageListRef}>
